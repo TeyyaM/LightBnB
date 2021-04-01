@@ -100,7 +100,7 @@ const getAllProperties = function(options, limit = 10) {
   `;
 
   for (const key in options) {
-    if (options[key] && key !== 'minimum_rating') {
+    if (options[key] && key !== 'minimum_rating' && !options.owner_id) {
       if (queryParams.length === 0) {
         queryString += `WHERE `;
       } else {
