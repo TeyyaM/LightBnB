@@ -96,11 +96,11 @@ const getAllProperties = function(options, limit = 10) {
   let queryString = `SELECT properties.*,
   avg(property_reviews.rating) as average_rating  
   FROM properties
-  JOIN property_reviews on property_reviews.property_id = properties.id
+  LEFT JOIN property_reviews on property_reviews.property_id = properties.id
   `;
 
   for (const key in options) {
-    if (options[key] && key !== 'minimum_rating' && !options.owner_id) {
+    if (options[key] && key !== 'minimum_rating') {
       if (queryParams.length === 0) {
         queryString += `WHERE `;
       } else {
@@ -110,12 +110,17 @@ const getAllProperties = function(options, limit = 10) {
         queryParams.push(`%${options[key].slice(1, -1)}%`);
         queryString += `city LIKE $${queryParams.length}`;
       } else {
-        queryParams.push(`${options[key] * 100}`);
         switch (key) { // switch is to make it easier to add more parameters in the future
+        case 'owner_id':
+          queryParams.push(`${options[key]}`);
+          queryString += `owner_id = $${queryParams.length}`;
+          break;
         case 'minimum_price_per_night':
+          queryParams.push(`${options[key] * 100}`);
           queryString += `cost_per_night >= $${queryParams.length}`;
           break;
         case 'maximum_price_per_night':
+          queryParams.push(`${options[key] * 100}`);
           queryString += `cost_per_night <= $${queryParams.length}`;
           break;
         }
